@@ -1,0 +1,36 @@
+﻿@using InstitutoABSystems.Models
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<div class="page">
+    <div class="main">
+        <div class="top-row px-4">
+            @if (Navigation.Uri.EndsWith("/inicio"))
+            {
+                <button class="btn-nav" @onclick="IrPerfil">Perfil</button>
+                <a href="#" @onclick="CerrarSesion">Cerrar sesión</a>
+            }
+        </div>
+
+        <div class="content px-4">
+            @Body
+        </div>
+    </div>
+</div>
+
+@code {
+    private void CerrarSesion()
+    {
+        // Limpiar sesión
+        Sesion.IdUsuario = 0;
+        Sesion.Email = null;
+
+        // Redirigir a login
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+
+    private void IrPerfil()
+    {
+        Navigation.NavigateTo("/perfil");
+    }
+}

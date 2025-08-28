@@ -1,0 +1,82 @@
+﻿@page "/perfil"
+<link href="css/bootstrap/Perfil.css" rel="stylesheet" />
+
+@using InstitutoABSystems.Data
+@using InstitutoABSystems.Models
+@inject AppDbContext Db
+@inject NavigationManager Nav
+
+<h3>Perfil del Usuario</h3>
+
+@if (estudiante != null)
+{
+    <div class="perfil-container">
+
+        <!-- Lado izquierdo: info personal -->
+        <div class="perfil-info">
+            <div class="perfil-header">
+                <div class="perfil-icon">👤</div>
+                <h4>@estudiante.Nombres @estudiante.Apellidos</h4>
+            </div>
+
+            <div class="perfil-body">
+                <p><strong>Fecha de Nacimiento:</strong> @estudiante.FechaNacimiento.ToShortDateString()</p>
+                <p><strong>Dirección:</strong> @estudiante.Direccion</p>
+                <p><strong>Sexo:</strong> @estudiante.Sexo</p>
+                <p><strong>CURP:</strong> @estudiante.CURP</p>
+                <p><strong>Teléfono:</strong> @estudiante.Telefono</p>
+                <p><strong>Email:</strong> @estudiante.Email</p>
+                <p><strong>Modalidad:</strong> @estudiante.Modalidad</p>
+                <p><strong>Requiere asistencia:</strong> @(estudiante.RequiereAsistencia ? "Sí" : "No")</p>
+                <p><strong>Descripción Personal:</strong> @(string.IsNullOrEmpty(estudiante.DescripcionPersonal) ? "No capturada" : estudiante.DescripcionPersonal)</p>
+                <p><strong>Varios Exámenes:</strong> @(estudiante.VariosExamenesBool? estudiante.VariosExamenes: "No aplica")</p>
+                <p><strong>Horario Preferencia:</strong> @(string.IsNullOrEmpty(estudiante.HorarioPreferencia) ? "No capturado" : estudiante.HorarioPreferencia)</p>
+
+                <button class="btn-volver" @onclick="VolverInicio">Volver a Inicio</button>
+            </div>
+        </div>
+
+        <!-- Lado derecho: estadísticas -->
+        <div class="perfil-stats">
+            <div class="stat-card">
+                <h3>@inscripciones.Count</h3>
+                <p>Total Exámenes Inscritos</p>
+            </div>
+            <div class="stat-card">
+                <h3>@inscripciones.Count(i => i.Estado == "Presentado")</h3>
+                <p>Exámenes Presentados</p>
+            </div>
+            <div class="stat-card">
+                <h3>@inscripciones.Count(i => i.Estado == "Cancelado")</h3>
+                <p>Exámenes Cancelados</p>
+            </div>
+            <div class="stat-card">
+                <h3>@inscripciones.Count(i => i.Estado == "Inscrito")</h3>
+                <p>Exámenes Pendientes</p>
+            </div>
+        </div>
+
+    </div>
+}
+else
+{
+    <p>Cargando perfil...</p>
+}
+
+@code {
+    private Estudiante estudiante;
+    private List<Inscrip> inscripciones = new List<Inscrip>();
+
+    protected override void OnInitialized()
+    {
+        estudiante = Db.Estudiantes.FirstOrDefault(e => e.IdUsuario == Sesion.IdUsuario);
+        inscripciones = Db.Inscripciones
+                          .Where(i => i.IdUsuario == Sesion.IdUsuario)
+                          .ToList();
+    }
+
+    private void VolverInicio()
+    {
+        Nav.NavigateTo("/inicio");
+    }
+}

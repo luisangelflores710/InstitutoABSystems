@@ -1,0 +1,184 @@
+﻿@page "/registro/{idUsuario:int}"
+@using InstitutoABSystems.Data
+@using InstitutoABSystems.Models
+@inject AppDbContext Db
+@inject NavigationManager Nav
+
+<h3>Registro de Estudiante</h3>
+
+<EditForm Model="@estudiante" OnValidSubmit="GuardarDatos" class="form-container">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="validation-summary" />
+
+    <div class="form-group">
+        <label>Nombres:</label>
+        <InputText @bind-Value="estudiante.Nombres" class="input-field" />
+    </div>
+
+    <div class="form-group">
+        <label>Apellidos:</label>
+        <InputText @bind-Value="estudiante.Apellidos" class="input-field" />
+    </div>
+
+    <div class="form-group">
+        <label>Fecha de nacimiento:</label>
+        <InputDate @bind-Value="estudiante.FechaNacimiento" class="input-field" />
+    </div>
+
+    <div class="form-group">
+        <label>Dirección:</label>
+        <InputText @bind-Value="estudiante.Direccion" class="input-field" />
+    </div>
+
+    <div class="form-group">
+        <label>Sexo:</label>
+        <InputSelect @bind-Value="estudiante.Sexo" class="input-field">
+            <option value="">--Selecciona--</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label>CURP:</label>
+        <InputText @bind-Value="estudiante.CURP" class="input-field" />
+    </div>
+
+    <div class="form-group">
+        <label>Teléfono:</label>
+        <InputText @bind-Value="estudiante.Telefono" class="input-field" />
+    </div>
+
+    <div class="form-group">
+        <label>Email:</label>
+        <InputText @bind-Value="estudiante.Email" class="input-field" />
+    </div>
+
+    <div class="form-group">
+        <label>Modalidad:</label>
+        <InputSelect @bind-Value="estudiante.Modalidad" class="input-field">
+            <option value="">--Selecciona--</option>
+            <option value="Presencial">Presencial</option>
+            <option value="Online">Online</option>
+        </InputSelect>
+    </div>
+
+    <div class="form-group checkbox-group">
+        <InputCheckbox @bind-Value="estudiante.RequiereAsistencia" />
+        <label>Requiere asistencia</label>
+    </div>
+
+    <div class="form-group">
+        <InputText @bind-Value="estudiante.DescripcionPersonal" placeholder="Descripción personal (opcional)" class="input-field" />
+    </div>
+
+    <div class="form-group checkbox-group">
+        <InputCheckbox @bind-Value="estudiante.VariosExamenesBool" />
+        <label>¿Desea presentar varios exámenes?</label>
+    </div>
+
+    @if (estudiante.VariosExamenesBool)
+    {
+        <div class="form-group">
+            <InputText @bind-Value="estudiante.VariosExamenes" placeholder="Varios exámenes (separados por coma)" class="input-field" />
+        </div>
+    }
+
+    <div class="form-group">
+        <label>Horario preferencia (opcional):</label>
+        <InputSelect @bind-Value="estudiante.HorarioPreferencia" class="input-field">
+            <option value="">--Selecciona--</option>
+            @foreach (var hora in horariosOficina)
+            {
+                <option value="@hora">@hora</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button type="submit" class="btn-submit">Guardar</button>
+</EditForm>
+
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background-color: #fdfdfd;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .input-field {
+        padding: 8px 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+    .checkbox-group {
+        flex-direction: row;
+        align-items: center;
+    }
+
+        .checkbox-group label {
+            margin-left: 5px;
+            font-weight: normal;
+        }
+
+    .btn-submit {
+        background-color: #007BFF;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+
+    .validation-summary {
+        color: red;
+        margin-bottom: 10px;
+    }
+</style>
+
+
+@code {
+    [Parameter] public int idUsuario { get; set; }
+    private Estudiante estudiante;
+    private List<string> horariosOficina = new List<string>
+    {
+        "09:00", "10:00", "11:00", "12:00",
+        "13:00", "14:00", "15:00", "16:00", "17:00"
+    };
+    protected override void OnInitialized()
+    {
+        estudiante = new Estudiante
+        {
+            IdUsuario = idUsuario
+        };
+    }
+
+    private void GuardarDatos()
+    {
+        Db.Estudiantes.Add(estudiante);
+        Db.SaveChanges();
+        Nav.NavigateTo("/inicio");
+    }
+}

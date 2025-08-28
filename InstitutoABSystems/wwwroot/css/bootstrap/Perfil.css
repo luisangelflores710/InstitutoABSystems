@@ -1,0 +1,38 @@
+﻿.perfil-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.perfil-info {
+    flex: 1 1 45%;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.perfil-stats {
+    flex: 1 1 45%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.stat-card {
+    background: #84bc04;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.btn-volver {
+    margin-top: 1rem;
+    background: #006D77;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}

@@ -1,0 +1,220 @@
+﻿@page "/inicio"
+<link href="css/bootstrap/Examenes.css" rel="stylesheet" />
+
+@using InstitutoABSystems.Data
+@using InstitutoABSystems.Models
+@inject AppDbContext Db
+@inject NavigationManager Nav
+ 
+
+<h3>Bienvenido</h3>
+<button class="btn-inscribir" @onclick="MostrarModalInscripcion">Inscribirse en nuevo examen</button>
+
+<h4 class="subtitle">Exámenes en los que estás inscrito</h4>
+
+<input type="text" placeholder="Filtrar exámenes..." @bind="filtro" class="input-filtro" />
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre del Candidato</th>
+            <th>Modalidad</th>
+            <th>Requiere Asistencia</th>
+            <th>Nombre del Examen</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Código</th>
+            <th>Estado</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var i in InscripcionesFiltradas)
+        {
+            var examen = Db.Examenes.Find(i.IdExamen);
+            var estudiante = Db.Estudiantes.FirstOrDefault(e => e.IdUsuario == i.IdUsuario);
+
+            if (i.FechaExamen.Date < DateTime.Today && i.Estado == "Inscrito")
+            {
+                i.Estado = "Presentado";
+                Db.SaveChanges();
+            }
+
+            <tr>
+                <td>@estudiante?.Nombres @estudiante?.Apellidos</td>
+                <td>@estudiante?.Modalidad</td>
+                <td>@(estudiante?.RequiereAsistencia == true ? "Sí" : "No")</td>
+                <td>@examen?.Nombre</td>
+                <td>@i.FechaExamen.ToShortDateString()</td>
+                <td>@i.HoraExamen</td>
+                <td>@i.CodigoParticipacion</td>
+                <td>@i.Estado</td>
+                <td>
+                    <button class="btn-cancel"
+                            @onclick="() => MostrarModalCancelar(i.Id)"
+                            disabled="@(i.Estado != "Inscrito")">
+                        Cancelar
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@* Modal cancelar *@
+@if (modalCancelarVisible)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content">
+            <h4>¿Estás seguro que deseas cancelar esta inscripción?</h4>
+            <div class="modal-buttons">
+                <button class="btn-confirm" @onclick="ConfirmarCancelarInscripcion">Sí</button>
+                <button class="btn-cancel" @onclick="CerrarModalCancelar">No</button>
+            </div>
+        </div>
+    </div>
+}
+
+@* Modal inscripción *@
+@if (modalInscripcionVisible)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content">
+            <h4>Inscribirse en examen</h4>
+            <select @bind="idExamenSeleccionado">
+                <option value="0">Selecciona un examen</option>
+                @foreach (var ex in Db.Examenes.ToList())
+                {
+                    <option value="@ex.Id">@ex.Nombre</option>
+                }
+            </select>
+            @if (!string.IsNullOrEmpty(MensajeModal))
+            {
+                <p style="color:red; margin-top:10px;">@MensajeModal</p>
+            }
+            <div class="modal-buttons">
+                <button class="btn-confirm" @onclick="ConfirmarInscripcion">Inscribir</button>
+                <button class="btn-cancel" @onclick="CerrarModalInscripcion">Cancelar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Inscrip> inscripciones = new List<Inscrip>();
+    private bool modalCancelarVisible = false;
+    private bool modalInscripcionVisible = false;
+    private int idCancelar;
+    private int idExamenSeleccionado;
+    private string MensajeModal;
+    private List<string> horariosOficina = new List<string>
+    {
+        "09:00", "10:00", "11:00", "12:00",
+        "13:00", "14:00", "15:00", "16:00", "17:00"
+    };
+
+    protected override void OnInitialized()
+    {
+        int idUsuario = Sesion.IdUsuario;
+        inscripciones = Db.Inscripciones
+                          .Where(i => i.IdUsuario == idUsuario)
+                          .ToList();
+    }
+
+    // Modal cancelar
+    private void MostrarModalCancelar(int id)
+    {
+        idCancelar = id;
+        modalCancelarVisible = true;
+    }
+
+    private void CerrarModalCancelar()
+    {
+        modalCancelarVisible = false;
+    }
+
+    private void ConfirmarCancelarInscripcion()
+    {
+        var ins = Db.Inscripciones.Find(idCancelar);
+        if (ins != null && ins.Estado == "Inscrito")
+        {
+            ins.Estado = "Cancelado";
+            Db.SaveChanges();
+        }
+
+        inscripciones = Db.Inscripciones
+                          .Where(i => i.IdUsuario == Sesion.IdUsuario)
+                          .ToList();
+
+        modalCancelarVisible = false;
+    }
+
+    // Modal inscripción
+    private void MostrarModalInscripcion()
+    {
+        MensajeModal = null;
+        idExamenSeleccionado = 0;
+        modalInscripcionVisible = true;
+    }
+
+    private void CerrarModalInscripcion()
+    {
+        modalInscripcionVisible = false;
+    }
+
+    private void ConfirmarInscripcion()
+    {
+        if (idExamenSeleccionado == 0)
+        {
+            MensajeModal = "Debes seleccionar un examen.";
+            return;
+        }
+
+        bool yaInscrito = Db.Inscripciones
+                            .Any(i => i.IdUsuario == Sesion.IdUsuario && i.IdExamen == idExamenSeleccionado && i.Estado == "Inscrito");
+
+        if (yaInscrito)
+        {
+            MensajeModal = "Ya estás inscrito en este examen.";
+            return;
+        }
+
+        var random = new Random();
+        DateTime fechaExamen = DateTime.Today.AddDays(random.Next(1, 30));
+        TimeSpan horaExamen = TimeSpan.Parse(horariosOficina[random.Next(horariosOficina.Count)]);
+
+        var nuevaInscripcion = new Inscrip
+        {
+            IdUsuario = Sesion.IdUsuario,
+            IdExamen = idExamenSeleccionado,
+            FechaExamen = fechaExamen,
+            HoraExamen = horaExamen,
+            Estado = "Inscrito",
+            CodigoParticipacion = Guid.NewGuid().ToString().Substring(0, 8)
+        };
+
+        Db.Inscripciones.Add(nuevaInscripcion);
+        Db.SaveChanges();
+
+        inscripciones = Db.Inscripciones
+                          .Where(i => i.IdUsuario == Sesion.IdUsuario)
+                          .ToList();
+
+        MensajeModal = null;
+        modalInscripcionVisible = false;
+    }
+
+    private string filtro = "";
+
+    private IEnumerable<Inscrip> InscripcionesFiltradas =>
+        inscripciones.Where(i =>
+        {
+            var examen = Db.Examenes.Find(i.IdExamen);
+            var estudiante = Db.Estudiantes.FirstOrDefault(e => e.IdUsuario == i.IdUsuario);
+            var nombreExamen = examen?.Nombre ?? "";
+            var estado = i.Estado ?? "";
+            return nombreExamen.Contains(filtro, StringComparison.OrdinalIgnoreCase)
+                   || estado.Contains(filtro, StringComparison.OrdinalIgnoreCase);
+        });
+
+}
