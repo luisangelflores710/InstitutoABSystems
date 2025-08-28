@@ -1,4 +1,5 @@
-﻿@page "/registro/{idUsuario:int}"
+﻿@page "/registro/{idUsuario:int}"  
+<link href="css/bootstrap/RegistroEstudiante.css" rel="stylesheet" />
 @using InstitutoABSystems.Data
 @using InstitutoABSystems.Models
 @inject AppDbContext Db
@@ -78,7 +79,7 @@
         <label>¿Desea presentar varios exámenes?</label>
     </div>
 
-    @if (estudiante.VariosExamenesBool)
+    @if (estudiante.VariosExamenesBool) //validamos si marcco el check y creamos el Input para que escriba
     {
         <div class="form-group">
             <InputText @bind-Value="estudiante.VariosExamenes" placeholder="Varios exámenes (separados por coma)" class="input-field" />
@@ -89,7 +90,7 @@
         <label>Horario preferencia (opcional):</label>
         <InputSelect @bind-Value="estudiante.HorarioPreferencia" class="input-field">
             <option value="">--Selecciona--</option>
-            @foreach (var hora in horariosOficina)
+            @foreach (var hora in horariosOficina) //traemos el metodo de horarios de oficina donde se listan las opciones
             {
                 <option value="@hora">@hora</option>
             }
@@ -99,74 +100,21 @@
     <button type="submit" class="btn-submit">Guardar</button>
 </EditForm>
 
-<style>
-    .form-container {
-        max-width: 600px;
-        margin: auto;
-        padding: 20px;
-        background-color: #fdfdfd;
-        border-radius: 10px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
 
-    .form-group {
-        margin-bottom: 15px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    label {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .input-field {
-        padding: 8px 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        font-size: 1rem;
-    }
-
-    .checkbox-group {
-        flex-direction: row;
-        align-items: center;
-    }
-
-        .checkbox-group label {
-            margin-left: 5px;
-            font-weight: normal;
-        }
-
-    .btn-submit {
-        background-color: #007BFF;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        font-size: 1rem;
-        cursor: pointer;
-    }
-
-        .btn-submit:hover {
-            background-color: #0056b3;
-        }
-
-    .validation-summary {
-        color: red;
-        margin-bottom: 10px;
-    }
-</style>
 
 
 @code {
     [Parameter] public int idUsuario { get; set; }
     private Estudiante estudiante;
+    
+    //Metodo para listar los horarios de oficina
     private List<string> horariosOficina = new List<string>
     {
         "09:00", "10:00", "11:00", "12:00",
         "13:00", "14:00", "15:00", "16:00", "17:00"
     };
+
+
     protected override void OnInitialized()
     {
         estudiante = new Estudiante
@@ -174,7 +122,7 @@
             IdUsuario = idUsuario
         };
     }
-
+    //Guardamos los datos del estudiante y vamos a la pantalla de inicio
     private void GuardarDatos()
     {
         Db.Estudiantes.Add(estudiante);

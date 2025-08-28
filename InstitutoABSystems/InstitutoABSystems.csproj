@@ -5,17 +5,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\css\Estilos\**" />
+    <Content Remove="wwwroot\css\Estilos\**" />
+    <EmbeddedResource Remove="wwwroot\css\Estilos\**" />
+    <None Remove="wwwroot\css\Estilos\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Pages\Inicio.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Chart.js" Version="3.7.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.413" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.413" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.413" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\css\Estilos\" />
+    <PackageReference Include="SQLite" Version="3.13.0" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,72 @@
+﻿
+/* Wrapper dividido */
+.login-wrapper {
+    background: #006D77;
+}
+
+/* Izquierda */
+.login-left {
+    flex: 1;
+    background: #ffffff;
+}
+
+.logo {
+    width: 120px;
+    height: auto;
+}
+
+.brand {
+    color: #84bc04;
+    font-weight: 600;
+}
+
+/* Derecha */
+.login-right {
+    flex: 1;
+    background: #34495E;
+    border-radius: 8px 0 0 8px;
+}
+
+/* Inputs */
+.login-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #666;
+    color: #fff;
+    padding: 8px 0;
+    outline: none;
+}
+
+    .login-input:focus {
+        border-bottom: 1px solid #ff2e88;
+    }
+
+/* Línea fucsia debajo */
+.line-accent {
+    height: 2px;
+    width: 0;
+    background: #ff2e88;
+    transition: width 0.3s;
+}
+
+.login-input:focus + .line-accent {
+    width: 100%;
+}
+
+/* Botón */
+.btn-submit {
+    background: #84bc04;
+    border: none;
+    border-radius: 4px;
+    padding: 12px;
+    color: white;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+    .btn-submit:hover {
+        background: #84bc04;
+        transform: scale(1.02);
+    }
+

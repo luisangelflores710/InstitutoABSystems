@@ -1,11 +1,12 @@
 ﻿  @page "/login"
+<link href="css/bootstrap/Login.css" rel="stylesheet" />
 @using InstitutoABSystems.Data
 @using InstitutoABSystems.Models
 @inject AppDbContext Db
 @inject NavigationManager Nav
 
 <div class="login-wrapper d-flex vh-100">
-    <!-- Lado izquierdo: Bienvenida + Logo -->
+    <!-- Lado izquierdo: Donde va el Logo -->
     <div class="login-left d-flex flex-column justify-content-center align-items-center text-center p-5">
         <img src="images/logo.png" alt="Logo" class="logo mb-4" />
         <h1 class="fw-bold">Bienvenido</h1>
@@ -13,7 +14,7 @@
         <p class="text-muted">Accede a tu cuenta para continuar</p>
     </div>
 
-    <!-- Lado derecho: Formulario -->
+    <!-- Lado derecho: Formulario de Inicio de sesión -->
     <div class="login-right d-flex flex-column justify-content-center p-5 shadow-lg">
         <EditForm Model="@loginModel" OnValidSubmit="LoginUsuario">
             <DataAnnotationsValidator />
@@ -53,114 +54,42 @@
 
         if (usuario == null)
         {
-            // Crear usuario nuevo
+            // Si no existe crea un usuario nuevo
             Db.Usuarios.Add(loginModel);
             Db.SaveChanges();
 
             Sesion.IdUsuario = loginModel.Id;
             Sesion.Email = loginModel.Email;
 
-            // Redirigir a registro de estudiante
+            // Como es nuevo lo manda a registrar sus datos
             Nav.NavigateTo($"/registro/{loginModel.Id}");
             return;
         }
 
-        // Si existe, validar contraseña
+        // Si existe, validamos su contraseña
         if (usuario.Contraseña != loginModel.Contraseña)
         {
-            mensaje = "Contraseña incorrecta";
+            mensaje = "Contraseña incorrecta"; //si se equivoca
             return;
         }
 
-        // Guardar sesión
+        // Si no se equivoca inicia sesión
         Sesion.IdUsuario = usuario.Id;
         Sesion.Email = usuario.Email;
 
-        // Revisar si ya tiene datos de estudiante
+        // Validamos que ya tiene datos
         var estudiante = Db.Estudiantes.FirstOrDefault(e => e.IdUsuario == usuario.Id);
 
         if (estudiante == null)
         {
+            //Si no tiene lo mandamos a registro de datos
             Nav.NavigateTo($"/registro/{usuario.Id}");
         }
         else
         {
+            //Si ya tiene lo mandamos al inicio donde vera sus examenes.
             Nav.NavigateTo("/inicio");
         }
     }
 }
 
-<style>
-    /* Wrapper dividido */
-    .login-wrapper {
-        background: #006D77;
-
-    }
-
-    /* Izquierda */
-    .login-left {
-        flex: 1;
-        background: #ffffff;
-    }
-
-    .logo {
-        width: 120px;
-        height: auto;
-    }
-
-    .brand {
-        color: #84bc04;
-        font-weight: 600;
-    }
-
-    /* Derecha */
-    .login-right {
-        flex: 1;
-        background: #34495E;
-        border-radius: 8px 0 0 8px;
-    }
-
-    /* Inputs */
-    .login-input {
-        width: 100%;
-        background: transparent;
-        border: none;
-        border-bottom: 1px solid #666;
-        color: #fff;
-        padding: 8px 0;
-        outline: none;
-    }
-
-    .login-input:focus {
-        border-bottom: 1px solid #ff2e88;
-    }
-
-    /* Línea fucsia debajo */
-    .line-accent {
-        height: 2px;
-        width: 0;
-        background: #ff2e88;
-        transition: width 0.3s;
-    }
-
-    .login-input:focus + .line-accent {
-        width: 100%;
-    }
-
-    /* Botón */
-    .btn-submit {
-        background: #84bc04;
-        border: none;
-        border-radius: 4px;
-        padding: 12px;
-        color: white;
-        font-weight: 600;
-        transition: 0.3s;
-    }
-
-    .btn-submit:hover {
-        background: #84bc04;
-        transform: scale(1.02);
-    }
-
-</style>
