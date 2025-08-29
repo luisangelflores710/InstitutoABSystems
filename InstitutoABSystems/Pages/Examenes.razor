@@ -183,9 +183,19 @@
         //Si no pasamos a la logica de inscripcion
 
         var random = new Random();
-        DateTime fechaExamen = DateTime.Today.AddDays(random.Next(1, 30)); //Generamos una fecha de examen
-        TimeSpan horaExamen = TimeSpan.Parse(horariosOficina[random.Next(horariosOficina.Count)]); //Generamos una hora apartir del metodo de horarios de oficina
+        var estudiante = Db.Estudiantes.FirstOrDefault(e => e.IdUsuario == Sesion.IdUsuario);
 
+        DateTime fechaExamen = DateTime.Today.AddDays(random.Next(1, 30)); //Generamos una fecha de examen
+        TimeSpan horaExamen;
+        if (!string.IsNullOrEmpty(estudiante.HorarioPreferencia) &&
+            TimeSpan.TryParse(estudiante.HorarioPreferencia, out var horaPreferida))
+        {
+            horaExamen = horaPreferida; // Si tiene preferencia, usamos esa
+        }
+        else
+        {
+            horaExamen = TimeSpan.Parse(horariosOficina[random.Next(horariosOficina.Count)]); // Si no, al azar
+        }
 
         //Inscribimos
         var nuevaInscripcion = new Inscrip

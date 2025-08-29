@@ -11,6 +11,12 @@
                 <a href="#" @onclick="CerrarSesion">Cerrar sesión</a>
             }
         </div>
+        <div class="top-row px-4">
+            @if (Navigation.Uri.EndsWith("/perfil"))
+            {
+                 <a href="#" @onclick="CerrarSesion">Cerrar sesión</a>
+            }
+        </div>
 
         <div class="content px-4">
             @Body
@@ -26,7 +32,7 @@
         Sesion.Email = null;
 
         // Redirigir a login
-        Navigation.NavigateTo("/login", forceLoad: true);
+        Navigation.NavigateTo("/", forceLoad: true);
     }
 
     private void IrPerfil()
